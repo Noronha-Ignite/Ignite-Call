@@ -6,6 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
+import { api } from '../../lib/axios'
+import { AxiosError } from 'axios'
 
 const registerFormSchema = z.object({
   username: z
@@ -19,7 +21,7 @@ const registerFormSchema = z.object({
   name: z
     .string()
     .min(3, { message: 'Informe um nome com pelo menos 3 letras.' })
-    .regex(/^([a-z]+)$/i, {
+    .regex(/^([a-z ]+)$/i, {
       message: 'Nome deve conter apenas letras.',
     }),
 })
@@ -41,7 +43,18 @@ export default function Register() {
   const { username } = router.query
 
   const handleRegister = async (data: RegisterFormData) => {
-    console.log(data)
+    try {
+      await api.post('users', {
+        name: data.name,
+        username: data.username,
+      })
+    } catch (err) {
+      if (err instanceof AxiosError && err.response?.data.message) {
+        return alert(err.response.data.message)
+      }
+
+      console.log(err)
+    }
   }
 
   useEffect(() => {
