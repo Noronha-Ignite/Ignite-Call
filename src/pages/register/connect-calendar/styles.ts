@@ -1,4 +1,4 @@
-import { Box, Heading, Text, styled } from '@ignite-ui/react'
+import { Avatar, Box, Button, Heading, Text, styled } from '@ignite-ui/react'
 
 export const Container = styled('main', {
   maxWidth: 572,
@@ -34,5 +34,21 @@ export const ContentItem = styled('div', {
   borderRadius: '$md',
   padding: '$4 $6',
 
+  marginBottom: '$4',
+})
+
+export const AuthError = styled(Text, {
+  color: '#f75a68',
   marginBottom: '$2',
+})
+
+export const LoggedButton = styled(Button, {
+  span: {
+    height: 'calc(100% - 2px)',
+    width: 'auto',
+    aspectRatio: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 })
