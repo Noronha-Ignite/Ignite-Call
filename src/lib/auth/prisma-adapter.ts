@@ -1,10 +1,14 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Adapter } from 'next-auth/adapters'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { parseCookies, destroyCookie } from 'nookies'
 
 import { prisma } from '../prisma'
 
-export const PrismaAdapter = (req: NextApiRequest, res: NextApiResponse): Adapter => ({
+export const PrismaAdapter = (
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Adapter => ({
   async createUser(createdUser) {
     console.log('CREATED USER PAYLOAD: ', createdUser)
 
@@ -21,8 +25,8 @@ export const PrismaAdapter = (req: NextApiRequest, res: NextApiResponse): Adapte
       data: {
         name: createdUser.name,
         email: createdUser.email,
-        avatar_url: createdUser.avatar_url
-      }
+        avatar_url: createdUser.avatar_url,
+      },
     })
 
     destroyCookie({ res }, '@ignite-call:userId', { path: '/' })
@@ -84,12 +88,12 @@ export const PrismaAdapter = (req: NextApiRequest, res: NextApiResponse): Adapte
       where: {
         provider_provider_account_id: {
           provider,
-          provider_account_id: providerAccountId
-        }
+          provider_account_id: providerAccountId,
+        },
       },
       include: {
-        user: true
-      }
+        user: true,
+      },
     })
 
     if (!account) {
@@ -116,8 +120,8 @@ export const PrismaAdapter = (req: NextApiRequest, res: NextApiResponse): Adapte
       data: {
         name: updatedUser.name,
         email: updatedUser.email,
-        avatar_url: updatedUser.avatar_url
-      }
+        avatar_url: updatedUser.avatar_url,
+      },
     })
 
     return {
@@ -144,7 +148,7 @@ export const PrismaAdapter = (req: NextApiRequest, res: NextApiResponse): Adapte
         scope: account.scope,
         id_token: account.id_token,
         session_state: account.session_state,
-      }
+      },
     })
   },
 
@@ -154,13 +158,13 @@ export const PrismaAdapter = (req: NextApiRequest, res: NextApiResponse): Adapte
         user_id: userId,
         session_token: sessionToken,
         expires,
-      }
+      },
     })
 
     return {
       sessionToken,
       userId,
-      expires
+      expires,
     }
   },
 
@@ -170,8 +174,8 @@ export const PrismaAdapter = (req: NextApiRequest, res: NextApiResponse): Adapte
         session_token: sessionToken,
       },
       include: {
-        user: true
-      }
+        user: true,
+      },
     })
 
     if (!session) {
@@ -184,7 +188,7 @@ export const PrismaAdapter = (req: NextApiRequest, res: NextApiResponse): Adapte
       session: {
         userId: session.user_id,
         expires: session.expires,
-        sessionToken: session.session_token
+        sessionToken: session.session_token,
       },
       user: {
         id: user.id,
@@ -193,15 +197,15 @@ export const PrismaAdapter = (req: NextApiRequest, res: NextApiResponse): Adapte
         email: user.email!,
         avatar_url: user.avatar_url!,
         emailVerified: null,
-      }
+      },
     }
   },
 
   async deleteSession(sessionToken) {
-    await prisma.session.delete({ 
+    await prisma.session.delete({
       where: {
-        session_token: sessionToken
-      } 
+        session_token: sessionToken,
+      },
     })
   },
 
@@ -213,7 +217,7 @@ export const PrismaAdapter = (req: NextApiRequest, res: NextApiResponse): Adapte
       data: {
         user_id: userId,
         expires,
-      }
+      },
     })
 
     return {

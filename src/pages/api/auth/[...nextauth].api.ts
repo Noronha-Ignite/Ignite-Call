@@ -4,7 +4,10 @@ import { NextApiRequest, NextApiResponse } from 'next'
 
 import { PrismaAdapter } from '../../../lib/auth/prisma-adapter'
 
-export const buildNextAuthOptions = (req: NextApiRequest, res: NextApiResponse): NextAuthOptions => ({
+export const buildNextAuthOptions = (
+  req: NextApiRequest,
+  res: NextApiResponse,
+): NextAuthOptions => ({
   adapter: PrismaAdapter(req, res),
 
   providers: [
@@ -46,9 +49,8 @@ export const buildNextAuthOptions = (req: NextApiRequest, res: NextApiResponse):
       session.user = user
 
       return session
-    }
+    },
   },
-
 })
 
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
