@@ -35,7 +35,7 @@ export default function Register() {
               <Text size="sm">Conectado</Text>
               <Avatar
                 css={{ width: '$6', height: '$6' }}
-                src={session?.data?.user?.image ?? ''}
+                src={session?.data?.user?.avatar_url}
               />
             </S.LoggedButton>
           ) : (
