@@ -1,7 +1,7 @@
 import NextAuth from 'next-auth/next'
 
 declare module 'next-auth' {
-  export interface User {
+  interface User {
     id: string
     name: string
     email: string
@@ -9,8 +9,7 @@ declare module 'next-auth' {
     avatar_url: string
   }
 
-  export interface Session {
-    user?: Partial<User>
-    expires: string
+  interface Session {
+    user: User
   }
 }
