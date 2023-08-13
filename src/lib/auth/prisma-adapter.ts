@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Adapter } from 'next-auth/adapters'
-import { NextApiRequest, NextApiResponse } from 'next'
+import { NextApiRequest, NextApiResponse, NextPageContext } from 'next'
 import { parseCookies, destroyCookie } from 'nookies'
 
 import { prisma } from '../prisma'
 
 export const PrismaAdapter = (
-  req: NextApiRequest,
-  res: NextApiResponse,
+  req: NextApiRequest | NextPageContext['req'],
+  res: NextApiResponse | NextPageContext['res'],
 ): Adapter => ({
   async createUser(createdUser) {
     console.log('CREATED USER PAYLOAD: ', createdUser)

@@ -36,5 +36,5 @@ export default async function handler(
     path: '/',
   })
 
-  return res.status(201).json(user)
+  return res.status(201).json({ error: false })
 }
