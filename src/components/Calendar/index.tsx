@@ -1,10 +1,64 @@
 import { CaretLeft, CaretRight } from 'phosphor-react'
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 
 import * as S from './styles'
 import { getWeekDays } from '../../utils/get-week-days'
-import { useState } from 'react'
-import { capitalize } from '../../utils/text'
+import { useMemo, useState } from 'react'
+
+type CalendarDay = {
+  date: Dayjs
+  disabled: boolean
+}
+
+type CalendarWeek = CalendarDay[]
+
+const splitMonthDaysInWeeks = (days: CalendarDay[]): CalendarWeek[] =>
+  days.reduce<CalendarWeek[]>((weeksAcc, day, index) => {
+    const weekIndex = Math.floor(index / 7)
+
+    const isNewWeek = !weeksAcc[weekIndex]
+
+    if (isNewWeek) {
+      weeksAcc[weekIndex] = [day]
+    } else {
+      const weekToInsert = weeksAcc[weekIndex]
+
+      weekToInsert.push(day)
+    }
+
+    return weeksAcc
+  }, [])
+
+const buildCalendarWeeks = (currentDate: Dayjs) => {
+  const daysInMonthArray = Array.from({
+    length: currentDate.daysInMonth(),
+  }).map((_, index) => currentDate.set('date', index + 1))
+
+  const firstWeekDay = currentDate.get('day')
+  const lastWeekDay = currentDate
+    .set('date', currentDate.daysInMonth())
+    .get('day')
+
+  const previousMonthFillArray = Array.from({
+    length: firstWeekDay,
+  })
+    .map((_, i) => currentDate.subtract(i + 1, 'day'))
+    .reverse()
+
+  const nextMonthFillArray = Array.from({
+    length: 7 - (lastWeekDay + 1),
+  }).map((_, i) => currentDate.add(1, 'month').add(i, 'day'))
+
+  const completeCalendarDays = [
+    ...previousMonthFillArray.map((date) => ({ date, disabled: true })),
+    ...daysInMonthArray.map((date) => ({ date, disabled: false })),
+    ...nextMonthFillArray.map((date) => ({ date, disabled: true })),
+  ]
+
+  const weeks = splitMonthDaysInWeeks(completeCalendarDays)
+
+  return weeks
+}
 
 export const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(() => {
@@ -26,6 +80,11 @@ export const Calendar = () => {
 
   const currentMonth = currentDate.format('MMMM')
   const currentYear = currentDate.format('YYYY')
+
+  const calendarWeeks = useMemo(
+    () => buildCalendarWeeks(currentDate),
+    [currentDate],
+  )
 
   return (
     <S.CalendarContainer>
@@ -54,21 +113,17 @@ export const Calendar = () => {
         </thead>
 
         <tbody>
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td>
-              <S.CalendarDay>1</S.CalendarDay>
-            </td>
-            <td>
-              <S.CalendarDay>2</S.CalendarDay>
-            </td>
-            <td>
-              <S.CalendarDay>3</S.CalendarDay>
-            </td>
-          </tr>
+          {calendarWeeks.map((week) => (
+            <tr key={week[0].date.toString()}>
+              {week.map(({ date: dayInWeek, disabled }) => (
+                <td key={dayInWeek.toString()}>
+                  <S.CalendarDay disabled={disabled}>
+                    {dayInWeek.date()}
+                  </S.CalendarDay>
+                </td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </S.CalendarBody>
     </S.CalendarContainer>
