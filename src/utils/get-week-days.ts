@@ -1,3 +1,5 @@
+import { capitalize } from './text'
+
 type GetWeekDaysParams = {
   short?: boolean
 }
@@ -12,6 +14,6 @@ export const getWeekDays = ({ short = false }: GetWeekDaysParams = {}) => {
         return weekDay.toUpperCase().substring(0, 3)
       }
 
-      return weekDay.substring(0, 1).toUpperCase().concat(weekDay.substring(1))
+      return capitalize(weekDay)
     })
 }
