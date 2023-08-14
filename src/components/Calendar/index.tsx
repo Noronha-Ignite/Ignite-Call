@@ -12,6 +12,11 @@ type CalendarDay = {
 
 type CalendarWeek = CalendarDay[]
 
+type CalendarProps = {
+  selectedDate?: Date
+  onDateSelected(date: Date): void
+}
+
 const splitMonthDaysInWeeks = (days: CalendarDay[]): CalendarWeek[] =>
   days.reduce<CalendarWeek[]>((weeksAcc, day, index) => {
     const weekIndex = Math.floor(index / 7)
@@ -51,7 +56,10 @@ const buildCalendarWeeks = (currentDate: Dayjs) => {
 
   const completeCalendarDays = [
     ...previousMonthFillArray.map((date) => ({ date, disabled: true })),
-    ...daysInMonthArray.map((date) => ({ date, disabled: false })),
+    ...daysInMonthArray.map((date) => ({
+      date,
+      disabled: date.endOf('day').isBefore(new Date()),
+    })),
     ...nextMonthFillArray.map((date) => ({ date, disabled: true })),
   ]
 
@@ -60,7 +68,7 @@ const buildCalendarWeeks = (currentDate: Dayjs) => {
   return weeks
 }
 
-export const Calendar = () => {
+export const Calendar = ({ onDateSelected, selectedDate }: CalendarProps) => {
   const [currentDate, setCurrentDate] = useState(() => {
     return dayjs().set('date', 1)
   })
@@ -117,7 +125,10 @@ export const Calendar = () => {
             <tr key={week[0].date.toString()}>
               {week.map(({ date: dayInWeek, disabled }) => (
                 <td key={dayInWeek.toString()}>
-                  <S.CalendarDay disabled={disabled}>
+                  <S.CalendarDay
+                    disabled={disabled}
+                    onClick={() => onDateSelected(dayInWeek.toDate())}
+                  >
                     {dayInWeek.date()}
                   </S.CalendarDay>
                 </td>
