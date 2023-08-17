@@ -4,6 +4,9 @@ import dayjs, { Dayjs } from 'dayjs'
 import * as S from './styles'
 import { getWeekDays } from '../../utils/get-week-days'
 import { useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { api } from '../../lib/axios'
+import { useRouter } from 'next/router'
 
 type CalendarDay = {
   date: Dayjs
@@ -15,6 +18,35 @@ type CalendarWeek = CalendarDay[]
 type CalendarProps = {
   selectedDate?: Date
   onDateSelected(date: Date): void
+}
+
+type BlockedDates = {
+  blockedWeekDays: number[]
+  blockedDates: number[]
+}
+
+type BuildCalendarOptions = {
+  weekDaysNotAllowed: number[]
+  datesAlreadyFull: number[]
+}
+
+const fetchBlockedDays = async (username: string, currentDate: Dayjs) => {
+  const response = await api.get<BlockedDates>(
+    `/users/${username}/blocked-dates`,
+    {
+      params: {
+        year: currentDate.get('year'),
+        month: String(currentDate.get('month') + 1).padStart(2, '0'),
+      },
+    },
+  )
+
+  const { blockedDates, blockedWeekDays } = response.data
+
+  return {
+    weekDaysNotAllowed: blockedWeekDays,
+    datesAlreadyFull: blockedDates,
+  }
 }
 
 const splitMonthDaysInWeeks = (days: CalendarDay[]): CalendarWeek[] =>
@@ -34,7 +66,10 @@ const splitMonthDaysInWeeks = (days: CalendarDay[]): CalendarWeek[] =>
     return weeksAcc
   }, [])
 
-const buildCalendarWeeks = (currentDate: Dayjs) => {
+const buildCalendarWeeks = (
+  currentDate: Dayjs,
+  { datesAlreadyFull, weekDaysNotAllowed }: BuildCalendarOptions,
+) => {
   const daysInMonthArray = Array.from({
     length: currentDate.daysInMonth(),
   }).map((_, index) => currentDate.set('date', index + 1))
@@ -58,7 +93,10 @@ const buildCalendarWeeks = (currentDate: Dayjs) => {
     ...previousMonthFillArray.map((date) => ({ date, disabled: true })),
     ...daysInMonthArray.map((date) => ({
       date,
-      disabled: date.endOf('day').isBefore(new Date()),
+      disabled:
+        date.endOf('day').isBefore(new Date()) ||
+        weekDaysNotAllowed.includes(date.get('day')) ||
+        datesAlreadyFull.includes(date.get('date')),
     })),
     ...nextMonthFillArray.map((date) => ({ date, disabled: true })),
   ]
@@ -69,6 +107,8 @@ const buildCalendarWeeks = (currentDate: Dayjs) => {
 }
 
 export const Calendar = ({ onDateSelected, selectedDate }: CalendarProps) => {
+  const router = useRouter()
+
   const [currentDate, setCurrentDate] = useState(() => {
     return dayjs().set('date', 1)
   })
@@ -84,14 +124,31 @@ export const Calendar = ({ onDateSelected, selectedDate }: CalendarProps) => {
     setCurrentDate(previousMonthDate)
   }
 
+  const username = String(router.query.username)
+
   const shortWeekDays = getWeekDays({ short: true })
 
   const currentMonth = currentDate.format('MMMM')
   const currentYear = currentDate.format('YYYY')
 
+  const { data: blockedDates } = useQuery(
+    ['blockedWeekDays', username, currentDate],
+    () => fetchBlockedDays(username, currentDate),
+    {
+      initialData: {
+        weekDaysNotAllowed: [0, 1, 2, 3, 4, 5, 6],
+        datesAlreadyFull: [],
+      },
+    },
+  )
+
   const calendarWeeks = useMemo(
-    () => buildCalendarWeeks(currentDate),
-    [currentDate],
+    () =>
+      buildCalendarWeeks(currentDate, {
+        datesAlreadyFull: blockedDates.datesAlreadyFull,
+        weekDaysNotAllowed: blockedDates.weekDaysNotAllowed,
+      }),
+    [currentDate, blockedDates],
   )
 
   return (
