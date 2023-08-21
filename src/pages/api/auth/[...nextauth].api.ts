@@ -17,8 +17,11 @@ export const buildNextAuthOptions = (
 
       authorization: {
         params: {
+          prompt: 'consent',
           scope:
             'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar',
+          access_type: 'offline',
+          response_type: 'code',
         },
       },
 
