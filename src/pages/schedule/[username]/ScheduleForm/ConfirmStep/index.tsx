@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import dayjs from 'dayjs'
 import { api } from '../../../../../lib/axios'
-import router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 
 type ConfirmStepProps = {
   schedulingDate: Date

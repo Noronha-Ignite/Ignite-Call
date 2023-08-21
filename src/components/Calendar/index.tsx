@@ -106,7 +106,7 @@ const buildCalendarWeeks = (
   return weeks
 }
 
-export const Calendar = ({ onDateSelected, selectedDate }: CalendarProps) => {
+export const Calendar = ({ onDateSelected }: CalendarProps) => {
   const router = useRouter()
 
   const [currentDate, setCurrentDate] = useState(() => {
