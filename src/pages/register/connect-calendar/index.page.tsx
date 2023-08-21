@@ -3,6 +3,7 @@ import * as S from './styles'
 import { ArrowRight } from 'phosphor-react'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
+import { NextSeo } from 'next-seo'
 
 export default function ConnectCalendar() {
   const session = useSession()
@@ -20,54 +21,58 @@ export default function ConnectCalendar() {
   }
 
   return (
-    <S.Container>
-      <S.Header>
-        <Heading as="strong">Conecte sua agenda!</Heading>
-        <Text>
-          Conecte o seu calendário para verificar automaticamente as horas
-          ocupadas e os novos eventos à medida em que são agendados.
-        </Text>
+    <>
+      <NextSeo title="Conecte sua agenda do Google | Ignite Call" noindex />
 
-        <MultiStep size={4} currentStep={2} />
-      </S.Header>
+      <S.Container>
+        <S.Header>
+          <Heading as="strong">Conecte sua agenda!</Heading>
+          <Text>
+            Conecte o seu calendário para verificar automaticamente as horas
+            ocupadas e os novos eventos à medida em que são agendados.
+          </Text>
 
-      <S.Content>
-        <S.ContentItem>
-          <Text>Google Calendar</Text>
-          {isSignedIn ? (
-            <S.LoggedButton variant="secondary" size="sm" disabled>
-              <Text size="sm">Conectado</Text>
-              <Avatar
-                css={{ width: '$6', height: '$6' }}
-                src={session?.data?.user?.avatar_url}
-              />
-            </S.LoggedButton>
-          ) : (
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={handleConnectCalendar}
-            >
-              Conectar <ArrowRight />
-            </Button>
+          <MultiStep size={4} currentStep={2} />
+        </S.Header>
+
+        <S.Content>
+          <S.ContentItem>
+            <Text>Google Calendar</Text>
+            {isSignedIn ? (
+              <S.LoggedButton variant="secondary" size="sm" disabled>
+                <Text size="sm">Conectado</Text>
+                <Avatar
+                  css={{ width: '$6', height: '$6' }}
+                  src={session?.data?.user?.avatar_url}
+                />
+              </S.LoggedButton>
+            ) : (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleConnectCalendar}
+              >
+                Conectar <ArrowRight />
+              </Button>
+            )}
+          </S.ContentItem>
+
+          {hasAuthError && (
+            <S.AuthError>
+              Falha ao se conectar ao Google, verifique se você habilitou as
+              permissões de acesso ao Google Calendar.
+            </S.AuthError>
           )}
-        </S.ContentItem>
 
-        {hasAuthError && (
-          <S.AuthError>
-            Falha ao se conectar ao Google, verifique se você habilitou as
-            permissões de acesso ao Google Calendar.
-          </S.AuthError>
-        )}
-
-        <Button
-          type="submit"
-          disabled={!isSignedIn}
-          onClick={handleNavigateToNextStep}
-        >
-          Próximo passo <ArrowRight />
-        </Button>
-      </S.Content>
-    </S.Container>
+          <Button
+            type="submit"
+            disabled={!isSignedIn}
+            onClick={handleNavigateToNextStep}
+          >
+            Próximo passo <ArrowRight />
+          </Button>
+        </S.Content>
+      </S.Container>
+    </>
   )
 }
