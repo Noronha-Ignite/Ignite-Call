@@ -13,7 +13,7 @@ export const ScheduleStep = () => {
     return (
       <ConfirmStep
         schedulingDate={selectedDateTime}
-        onCancelConfirmation={handleClearSelectedDateTime}
+        onEndConfirmation={handleClearSelectedDateTime}
       />
     )
   }

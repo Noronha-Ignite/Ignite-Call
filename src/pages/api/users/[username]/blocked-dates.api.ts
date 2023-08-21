@@ -1,7 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from '../../../../lib/prisma'
-import dayjs from 'dayjs'
-import { date } from 'zod'
 
 export default async function handler(
   req: NextApiRequest,
